@@ -432,3 +432,11 @@ FodyWeavers.xsd
 !/log/**
 /log/.venv/
 /log/__pycache__/
+
+# Shortener v1 y base común
+.venv/
+shortener_v1/.venv/
+shortener_v1/*.db
+.pytest_cache/
+# Certificados HTTPS (se generan con scripts/generar_certificados.sh)
+certs/*.pem

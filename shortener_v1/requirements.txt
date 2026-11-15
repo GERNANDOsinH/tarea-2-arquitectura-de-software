@@ -1,0 +1,5 @@
+litestar==2.25.0
+uvicorn
+grpcio
+protobuf
+pytest
