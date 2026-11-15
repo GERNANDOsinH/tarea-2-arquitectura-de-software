@@ -426,3 +426,9 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+
+# Keep the log protobuf source and generated services; ignore its virtualenv.
+!/log/
+!/log/**
+/log/.venv/
+/log/__pycache__/

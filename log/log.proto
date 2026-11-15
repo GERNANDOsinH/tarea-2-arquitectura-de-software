@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package LOG_MESSAGE;
+
+import "google/protobuf/timestamp.proto";
+
+service LogService {
+    rpc SendData (DataRequest) returns (DataResponse);
+}
+
+message DataRequest {
+    string url = 1;
+}
+
+message DataResponse {
+    bool success = 1;
+    string message = 2;
+}
