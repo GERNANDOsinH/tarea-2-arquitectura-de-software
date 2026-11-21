@@ -98,3 +98,44 @@ Las pruebas levantan el servicio de logs real (`log/main.py`) con una base tempo
   Se reutiliza un único canal gRPC.
 - **HTTPS:** certificado autofirmado para `localhost` generado con OpenSSL. El canal gRPC
   interno entre el shortener y el servicio de logs es sin TLS (mismo nodo).
+
+
+### Shortener v2 (Arquitectura 2)
+
+Servicio HTTP en LiteStar que acorta URLs y, al visitar una URL corta, responde
+con una redirección **301** (permanente) para que el navegador guarde la redirección en caché.
+No utiliza el servicio de logs gRPC e incorpora rate limiting y caché de respuestas en el servidor.
+
+### Instalación
+
+Desde la raíz del repositorio:
+
+```bash
+python3 -m venv shortener_v2/.venv
+shortener_v2/.venv/bin/python -m pip install -r shortener_v2/requirements.txt
+./scripts/generar_certificados.sh   # omitir si certs/cert.pem y certs/key.pem ya existen
+```
+
+
+### Ejecucion
+
+```bash
+shortener_v2/.venv/bin/python -m uvicorn shortener_v2.app:app --port 8001 \
+  --ssl-keyfile certs/key.pem --ssl-certfile certs/cert.pem
+```
+
+### Prueba rapida
+
+```bash
+# Acortar una URL
+curl -k -X POST https://localhost:8001/shorten \
+  -H "Content-Type: application/json" \
+  -d '{"long_url": "usm.cl/informatica/postulaciones-a-postgrado/2025/magiste-en-ingenieria-informatica/"}'
+# -> {"id":597652313,"hash":"eRgfR","short_url":"https://localhost:8001/eRgfR",...}
+
+# Visitar la URL corta (muestra el 301 sin seguirlo)
+curl -k -i https://localhost:8001/eRgfR
+
+# Probar el rate limiter (al superar 10 peticiones/minuto responde 429)
+for i in {1..12}; do curl -k -s -o /dev/null -w "%{http_code}\n" https://localhost:8001/eRgfR; done
+```
