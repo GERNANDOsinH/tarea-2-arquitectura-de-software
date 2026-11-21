@@ -5,7 +5,7 @@ import warnings
 
 from log import log_pb2 as log_dot_log__pb2
 
-GRPC_GENERATED_VERSION = '1.85.1'
+GRPC_GENERATED_VERSION = '1.85.3'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
