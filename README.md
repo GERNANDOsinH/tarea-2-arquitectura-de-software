@@ -1,5 +1,10 @@
 # tarea-2-arquitectura-de-software
 
+## Integrantes:
+- Fernando Hernández 202273056-0
+- Martin Muñoz 202273100-1
+- Martin Chacon 202023012-9
+
 ## Servicio gRPC de logs
 
 Desde la raíz del repositorio, crea el entorno e instala las dependencias:
