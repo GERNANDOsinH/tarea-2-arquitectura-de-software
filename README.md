@@ -105,7 +105,7 @@ Las pruebas levantan el servicio de logs real (`log/main.py`) con una base tempo
   interno entre el shortener y el servicio de logs es sin TLS (mismo nodo).
 
 
-### Shortener v2 (Arquitectura 2)
+## Shortener v2 (Arquitectura 2)
 
 Servicio HTTP en LiteStar que acorta URLs y, al visitar una URL corta, responde
 con una redirección **301** (permanente) para que el navegador guarde la redirección en caché.
@@ -120,16 +120,20 @@ python3 -m venv shortener_v2/.venv
 shortener_v2/.venv/bin/python -m pip install -r shortener_v2/requirements.txt
 ./scripts/generar_certificados.sh   # omitir si certs/cert.pem y certs/key.pem ya existen
 ```
+### Ejecución
 
-
-### Ejecucion
+En una terminal dedicada desde la raíz del repositorio (dejar corriendo mientras se realizan consultas; no requiere levantar el servicio de logs):
 
 ```bash
 shortener_v2/.venv/bin/python -m uvicorn shortener_v2.app:app --port 8001 \
   --ssl-keyfile certs/key.pem --ssl-certfile certs/cert.pem
 ```
 
-### Prueba rapida
+**Gestión de la Base de Datos:** Al iniciar, el servicio crea automáticamente el archivo `shortener_v2.db` en la raíz del repositorio con la secuencia inicial en `597652313`. Los datos persisten en disco aunque se detenga el servidor (`Ctrl + C`). Si se desea reiniciar los registros desde cero para una nueva prueba, basta con detener el servidor, eliminar el archivo (`rm -f shortener_v2.db`) y volver a iniciarlo.
+
+### Prueba rápida
+
+Con el servidor corriendo en una terminal, abrir una **segunda terminal** y ejecutar:
 
 ```bash
 # Acortar una URL
@@ -144,3 +148,20 @@ curl -k -i https://localhost:8001/eRgfR
 # Probar el rate limiter (al superar 10 peticiones/minuto responde 429)
 for i in {1..12}; do curl -k -s -o /dev/null -w "%{http_code}\n" https://localhost:8001/eRgfR; done
 ```
+
+### Configuración de Rate Limiter, Caché y Variables de Entorno
+
+Por defecto, el servicio utiliza un límite de **10 peticiones por minuto** y un tiempo de vida en caché (TTL) de **60 segundos**. Estos valores se pueden modificar sin alterar el código fuente pasando variables de entorno al iniciar el servidor:
+
+| Variable | Default | Uso |
+|---|---|---|
+| `SHORTENER_DB` | `shortener_v2.db` | Archivo SQLite de la Shortener DB |
+| `BASE_URL` | `https://localhost:8001` | Prefijo de las URLs cortas |
+| `RATE_LIMIT` | `10` | Máximo de peticiones permitidas por minuto |
+| `CACHE_TTL` | `60` | Segundos de duración de las respuestas en caché |
+
+**Ejemplo de ejecución con valores personalizados** (ej. 30 peticiones/minuto y 120 segundos de caché):
+
+```bash
+RATE_LIMIT=30 CACHE_TTL=120 shortener_v2/.venv/bin/python -m uvicorn shortener_v2.app:app --port 8001 \
+  --ssl-keyfile certs/key.pem --ssl-certfile certs/cert.pem
