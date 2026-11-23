@@ -440,3 +440,7 @@ shortener_v1/*.db
 .pytest_cache/
 # Certificados HTTPS (se generan con scripts/generar_certificados.sh)
 certs/*.pem
+
+# Shortener v2 y bases de datos locales
+shortener_v2/.venv/
+*.db
